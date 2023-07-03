@@ -1,0 +1,102 @@
+#! /usr/bin/env python3
+
+import os, subprocess, sys
+
+def usage(ec=1):
+    sys.stderr.write("Usage: rsync_cmd "
+      "[-d|--dry-run] [--ignore-conf-file] [-v] "
+      "[-- <rsync_opt_1> .. <rsync_opt_n> --] <remote host> "
+      "[<arg_1> ... <arg_n>]\n")
+    sys.exit(ec)
+
+def fmt_cmd(cmd):
+    o = []
+    for x in cmd:
+        for c in x:
+            if c.isspace():
+                o.append(f"\"{x}\"")
+                break
+        else:
+            o.append(x)
+    return " ".join(o)
+
+dry_run = False
+rsync_args = []
+verbose = False
+
+args = []
+if os.path.exists(".rsync_cmd"):
+    i = 1
+    icf = False
+    # A mini args parser just to see if `--ignore-conf-file` has been specified
+    while i < len(sys.argv):
+        if sys.argv[i] == "--ignore-conf-file":
+            icf = True
+            break
+        elif sys.argv[i] == "--":
+            i += 1
+            while i < len(sys.argv) and sys.argv[i] != "--": i += 1
+            i += 1
+        elif not sys.argv[i].startswith("-"): break
+        else: i += 1
+    if not icf:
+        with open(".rsync_cmd", "r") as f:
+            for l in f:
+                l = l.strip()
+                if len(l) > 0: args.append(l)
+args.extend(sys.argv[1:])
+
+i = 0
+while i < len(args):
+    if args[i] in ("-h", "--help"): usage(0)
+    elif args[i] == "--dry-run":
+        dry_run = True
+        i += 1
+    elif args[i] == "--ignore-conf-file": i += 1
+    elif args[i] == "-v":
+        verbose = True
+        i += 1
+    elif args[i] == "--":
+        i += 1
+        rsync_args = []
+        while i < len(args) and args[i] != "--":
+            rsync_args.append(args[i])
+            i += 1
+        if i == len(args): usage()
+        i += 1
+    elif not args[i].startswith("-"): break
+    else:
+        assert(args[i][0] == "-")
+        for c in args[i][1:]:
+            if c == "d": dry_run = True
+            elif c == "v": verbose = True
+            else: usage()
+        i += 1
+
+if i == len(args): usage()
+remote_host = args[i]
+cmd_args = args[i+1:]
+remote_dir = os.path.basename(os.path.realpath("."))
+assert remote_dir != "."
+
+rsync_cmd = ["rsync", "-az", "--partial", "--info", "progress2",
+  "--delete-during", "--filter", ":- .gitignore"]
+gg = os.path.join(os.getenv("HOME"), ".config", "git", "gitignore_global")
+if os.path.exists(gg):
+    rsync_cmd.extend(["--exclude-from", gg])
+
+rsync_cmd.extend(rsync_args)
+rsync_cmd.extend([".", f"{remote_host}:{remote_dir}"])
+if verbose: print(fmt_cmd(rsync_cmd))
+if not dry_run:
+    r = subprocess.run(rsync_cmd)
+    if r.returncode != 0:
+        sys.exit(r)
+if len(cmd_args) > 0:
+    ssh_cmd = ["ssh", "-t", remote_host, "cd", remote_dir, "&&" ]
+    ssh_cmd.extend(cmd_args)
+    if verbose: print(fmt_cmd(ssh_cmd))
+    if not dry_run:
+        r = subprocess.run(ssh_cmd)
+        if r.returncode != 0:
+            sys.exit(r)
