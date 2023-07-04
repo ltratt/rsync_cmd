@@ -80,7 +80,7 @@ remote_dir = os.path.basename(os.path.realpath("."))
 assert remote_dir != "."
 
 rsync_cmd = ["rsync", "-az", "--partial", "--info", "progress2",
-  "--delete-during", "--filter", ":- .gitignore"]
+  "--delete-during", "--filter", "dir-merge,-n /.gitignore"]
 gg = os.path.join(os.getenv("HOME"), ".config", "git", "gitignore_global")
 if os.path.exists(gg):
     rsync_cmd.extend(["--exclude-from", gg])

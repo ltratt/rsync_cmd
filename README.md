@@ -29,10 +29,11 @@ run `rsync` or `ssh`, specify `-d`.
 To pass additional arguments to `rsync`, put them between a pair of `--`
 arguments.
 
-`rsync_cmd` adds `-filter :- .gitignore` to the `rsync` command though note
-that `rsync` doesn't always parse `.gitignore` files correctly. `rsync_cmd`
-also adds `--exclude-from=$HOME/.config/git/gitignore_global` to the `rsync`
-command if a file exists at that path.
+`rsync_cmd` adds `dir-merge,-n /.gitignore` to the `rsync` command which does
+require trusting the sender, though in `rsync_cmd`'s mirroring mode, it is
+unclear whether one does need to trust the sender. `rsync_cmd` also adds
+`--exclude-from=$HOME/.config/git/gitignore_global` to the `rsync` command if a
+file exists at that path.
 
 
 # `.rsync_cmd` configuration file
