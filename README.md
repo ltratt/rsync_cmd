@@ -21,7 +21,10 @@ $ rsync_cmd ssh.example.com cargo test
 This will take the contents of the current working directory -- `~/src/yk/` --
 and replicate them to the directory `~/yk` on the host `ssh.example.com` using
 `rsync -az --delete-during`. If/when synchronisation completes successfully,
-`rsync_cmd` will then run `ssh ssh.example.com "cd yk && cargo test"`.
+`rsync_cmd` will then run `ssh ssh.example.com "cd yk && cargo test"`. Note
+that by default `rsync_cmd` will only synchronise directories that have a
+(possibly blank) `.rsync_cmd` file in, to help you avoid accidentally
+synchronising unintended directories.
 
 To see which commands are executed, specify `-v`. For a dry-run that doesn't
 run `rsync` or `ssh`, specify `-d`.
@@ -38,9 +41,10 @@ file exists at that path.
 
 # `.rsync_cmd` configuration file
 
-You can optionally use a `.rsync_cmd` configuration file in a directory: each
-argument must be on a single line, and those arguments are prepended to the
-command-line arguments. So for example:
+The `.rsync_cmd` file by default denotes directories which `rsync_cmd` is allow
+to synchronise. It can also contain normal `rsync_cmd` command-line options
+that are prepended to the user's actual command-line arguments. Each
+command-line argument in `.rsync_cmd` must be on a single line. For example:
 
 ```
 $ cat .rsync_cmd

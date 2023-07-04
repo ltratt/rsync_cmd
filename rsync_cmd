@@ -24,26 +24,29 @@ dry_run = False
 rsync_args = []
 verbose = False
 
+# A mini args parser just to see if `--ignore-conf-file` has been specified
+icf = False
+i = 1
+while i < len(sys.argv):
+    if sys.argv[i] == "--ignore-conf-file":
+        icf = True
+        break
+    elif sys.argv[i] == "--":
+        i += 1
+        while i < len(sys.argv) and sys.argv[i] != "--": i += 1
+        i += 1
+    elif not sys.argv[i].startswith("-"): break
+    else: i += 1
+
 args = []
-if os.path.exists(".rsync_cmd"):
-    i = 1
-    icf = False
-    # A mini args parser just to see if `--ignore-conf-file` has been specified
-    while i < len(sys.argv):
-        if sys.argv[i] == "--ignore-conf-file":
-            icf = True
-            break
-        elif sys.argv[i] == "--":
-            i += 1
-            while i < len(sys.argv) and sys.argv[i] != "--": i += 1
-            i += 1
-        elif not sys.argv[i].startswith("-"): break
-        else: i += 1
-    if not icf:
-        with open(".rsync_cmd", "r") as f:
-            for l in f:
-                l = l.strip()
-                if len(l) > 0: args.append(l)
+if not icf:
+    if not os.path.exists(".rsync_cmd"):
+        sys.stderr.write("No .rsync_cmd file found: refusing to synchronise\n")
+        sys.exit(1)
+    with open(".rsync_cmd", "r") as f:
+        for l in f:
+            l = l.strip()
+            if len(l) > 0: args.append(l)
 args.extend(sys.argv[1:])
 
 i = 0
