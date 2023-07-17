@@ -21,7 +21,6 @@ def fmt_cmd(cmd):
     return " ".join(o)
 
 dry_run = False
-rsync_args = []
 verbose = False
 
 # A mini args parser just to see if `--ignore-conf-file` has been specified
@@ -50,6 +49,7 @@ if not icf:
 args.extend(sys.argv[1:])
 
 i = 0
+rsync_args = []
 while i < len(args):
     if args[i] in ("-h", "--help"): usage(0)
     elif args[i] == "--dry-run":
@@ -61,7 +61,6 @@ while i < len(args):
         i += 1
     elif args[i] == "--":
         i += 1
-        rsync_args = []
         while i < len(args) and args[i] != "--":
             rsync_args.append(args[i])
             i += 1
