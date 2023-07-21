@@ -16,8 +16,7 @@ def fmt_cmd(cmd):
             if c.isspace():
                 o.append(f"\"{x}\"")
                 break
-        else:
-            o.append(x)
+        else: o.append(x)
     return " ".join(o)
 
 dry_run = False
@@ -84,21 +83,18 @@ assert remote_dir != "."
 rsync_cmd = ["rsync", "-az", "--partial", "--info", "progress2",
   "--delete-during", "--filter", "dir-merge,-n /.gitignore"]
 gg = os.path.join(os.getenv("HOME"), ".config", "git", "gitignore_global")
-if os.path.exists(gg):
-    rsync_cmd.extend(["--exclude-from", gg])
+if os.path.exists(gg): rsync_cmd.extend(["--exclude-from", gg])
 
 rsync_cmd.extend(rsync_args)
 rsync_cmd.extend([".", f"{remote_host}:{remote_dir}"])
 if verbose: print(fmt_cmd(rsync_cmd))
 if not dry_run:
     r = subprocess.run(rsync_cmd)
-    if r.returncode != 0:
-        sys.exit(r)
+    if r.returncode != 0: sys.exit(r)
 if len(cmd_args) > 0:
     ssh_cmd = ["ssh", "-t", remote_host, "cd", remote_dir, "&&" ]
     ssh_cmd.extend(cmd_args)
     if verbose: print(fmt_cmd(ssh_cmd))
     if not dry_run:
         r = subprocess.run(ssh_cmd)
-        if r.returncode != 0:
-            sys.exit(r)
+        if r.returncode != 0: sys.exit(r)
