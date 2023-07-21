@@ -1,9 +1,12 @@
-# rsync_cmd
+# rsync_cmd: edit locally, build remotely
 
-`rsync_cmd` is designed to make it easy to develop a project locally, but run
-it remotely. It uses [rsync](https://rsync.samba.org/) to mirror the current
-working directory to a remote and `ssh` to run a command remotely in that
-directory. Its usage is as follows:
+`rsync_cmd` is designed to make it easy to develop a project locally, but build
+and run it remotely. It uses [rsync](https://rsync.samba.org/) to *mirror*
+(i.e. alter the remote copy to be identical to the local copy, removing any
+remote changes) the current working directory to a remote and `ssh` to run a
+command remotely in that directory.
+
+Its usage is as follows:
 
 ```
 rsync_cmd [-d|--dry-run] [--ignore-conf-file] [-v] \
@@ -39,7 +42,7 @@ unclear whether one does need to trust the sender. `rsync_cmd` also adds
 file exists at that path.
 
 
-# `.rsync_cmd` configuration file
+## `.rsync_cmd` configuration file
 
 The `.rsync_cmd` file by default denotes directories which `rsync_cmd` is allow
 to synchronise. It can also contain normal `rsync_cmd` command-line options
