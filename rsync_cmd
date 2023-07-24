@@ -4,7 +4,7 @@ import os, subprocess, sys
 
 def usage(ec=1):
     sys.stderr.write("Usage: rsync_cmd "
-      "[-d|--dry-run] [--ignore-conf-file] [-v] "
+      "[-d|--dry-run] [-i|--ignore-conf-file] [-v] "
       "[-- <rsync_opt_1> .. <rsync_opt_n> --] <remote host> "
       "[<arg_1> ... <arg_n>]\n")
     sys.exit(ec)
@@ -26,7 +26,7 @@ verbose = False
 icf = False
 i = 1
 while i < len(sys.argv):
-    if sys.argv[i] == "--ignore-conf-file":
+    if sys.argv[i] in ("-i", "--ignore-conf-file"):
         icf = True
         break
     elif sys.argv[i] == "--":
@@ -54,7 +54,7 @@ while i < len(args):
     elif args[i] == "--dry-run":
         dry_run = True
         i += 1
-    elif args[i] == "--ignore-conf-file": i += 1
+    elif args[i] in ("-i", "--ignore-conf-file"): i += 1
     elif args[i] == "-v":
         verbose = True
         i += 1
