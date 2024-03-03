@@ -23,12 +23,12 @@ dry_run = False
 verbose = False
 
 # A mini args parser just to see if `--ignore-conf-file` has been specified
-icf = False
+icf = 0 # 0: normal; 1: ignore conf file contents; 2: ignore conf file presence
 i = 1
 while i < len(sys.argv):
     if sys.argv[i] in ("-i", "--ignore-conf-file"):
-        icf = True
-        break
+        icf += 1
+        i += 1
     elif sys.argv[i] == "--":
         i += 1
         while i < len(sys.argv) and sys.argv[i] != "--": i += 1
@@ -37,10 +37,11 @@ while i < len(sys.argv):
     else: i += 1
 
 args = []
-if not icf:
+if icf < 2:
     if not os.path.exists(".rsync_cmd"):
         sys.stderr.write("No .rsync_cmd file found: refusing to synchronise\n")
         sys.exit(1)
+if icf == 0:
     with open(".rsync_cmd", "r") as f:
         for l in f:
             l = l.strip()

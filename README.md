@@ -66,4 +66,6 @@ ssh -t ssh.example.com cd yk && cargo test
 ```
 
 If you wish to temporarily stop the contents of `.rsync_cmd` being prepended to
-the `rsync` command, specify `--ignore-conf-file` to `rsync_cmd`.
+the `rsync` command, specify `--ignore-conf-file` or `-i` to `rsync_cmd`. To
+stop `rsync_cmd` checking for the presence of `.rsync_cmd`, specify
+`--ignore-conf-file` or `-i` twice.
