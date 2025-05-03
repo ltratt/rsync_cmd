@@ -4,7 +4,7 @@ import os, subprocess, sys
 
 def usage(ec=1):
     sys.stderr.write("Usage: rsync_cmd "
-      "[-d|--dry-run] [-i|--ignore-conf-file] [-v] "
+      "[-d|--dry-run] [-i|--ignore-conf-file] [-s|--silent] [-v] "
       "[-- <rsync_opt_1> .. <rsync_opt_n> --] <remote host> "
       "[<arg_1> ... <arg_n>]\n")
     sys.exit(ec)
@@ -21,6 +21,7 @@ def fmt_cmd(cmd):
 
 dry_run = False
 verbose = False
+silent = False
 
 # A mini args parser just to see if `--ignore-conf-file` has been specified
 icf = 0 # 0: normal; 1: ignore conf file contents; 2: ignore conf file presence
@@ -56,6 +57,9 @@ while i < len(args):
         dry_run = True
         i += 1
     elif args[i] in ("-i", "--ignore-conf-file"): i += 1
+    elif args[i] in ("-s", "--silent"):
+        silent = True
+        i += 1
     elif args[i] == "-v":
         verbose = True
         i += 1
@@ -72,6 +76,7 @@ while i < len(args):
         for c in args[i][1:]:
             if c == "d": dry_run = True
             elif c == "v": verbose = True
+            elif c == "s": silent = True
             else: usage()
         i += 1
 
@@ -81,8 +86,10 @@ cmd_args = args[i+1:]
 remote_dir = os.path.basename(os.path.realpath("."))
 assert remote_dir != "."
 
-rsync_cmd = ["rsync", "-az", "--partial", "--info", "progress2",
-  "--delete-during", "--filter", "dir-merge,-n /.gitignore"]
+rsync_cmd = ["rsync", "-az", "--partial"]
+if not silent:
+    rsync_cmd.extend(["--info", "progress2"])
+rsync_cmd.extend(["--delete-during", "--filter", "dir-merge,-n /.gitignore"])
 gg = os.path.join(os.getenv("HOME"), ".config", "git", "gitignore_global")
 if os.path.exists(gg): rsync_cmd.extend(["--exclude-from", gg])
 
