@@ -1,6 +1,6 @@
 #! /usr/bin/env python3
 
-import os, subprocess, sys
+import os, shutil, subprocess, sys
 
 def usage(ec=1):
     sys.stderr.write("Usage: rsync_cmd "
@@ -86,7 +86,10 @@ cmd_args = args[i+1:]
 remote_dir = os.path.basename(os.path.realpath("."))
 assert remote_dir != "."
 
-rsync_cmd = ["rsync", "-az", "--partial"]
+if shutil.which("rsyncp"):
+  rsync_cmd = ["rsyncp", "--", "-az", "--partial"]
+else:
+  rsync_cmd = ["rsync", "-az", "--partial"]
 if not silent:
     rsync_cmd.extend(["--info", "progress2"])
 rsync_cmd.extend(["--delete-during", "--filter", "dir-merge,-n /.gitignore"])
