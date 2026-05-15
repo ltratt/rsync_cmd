@@ -102,6 +102,7 @@ if verbose: print(fmt_cmd(rsync_cmd))
 if not dry_run:
     r = subprocess.run(rsync_cmd)
     if r.returncode != 0: sys.exit(r)
+    print("\r\033[2K", end="")
 if len(cmd_args) > 0:
     ssh_cmd = ["ssh", "-t", remote_host, "cd", remote_dir, "&&" ]
     ssh_cmd.extend(cmd_args)
